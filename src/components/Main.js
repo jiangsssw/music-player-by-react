@@ -1,45 +1,55 @@
 require('normalize.css/normalize.css');
 require('styles/App.css');
 
-import React from 'react';
+import React,{Component}from 'react';
  import HeaderComponents from './header';
  import ProgressComponents from './progress';
 
-
-class AppComponent extends React.Component {
+let duration = null;
+class AppComponent extends Component {
   
 
-  getInitialState(){
-    return {
-      progress :'-1123'
-    }
+  constructor(props) {
+    super(props);
+    this.state = {
+      progress:'sds'
+    };
   }
   componentDidMount(){
-    // $('.progress-component').jPlayer({
-    //   ready:function(){
-    //     $(this).jPlayer('setMedia',{
-    //       mp3:'http://oj4t8z2d5.bkt.clouddn.com/%E9%AD%94%E9%AC%BC%E4%B8%AD%E7%9A%84%E5%A4%A9%E4%BD%BF.mp3'
-    //     }).jPlayer('play');
-    //   },
-    //   supplied:'mp3',
-    //   wmode:'window'
-    // }
-    // );
-    // $('.progress-component').bind($.jPlayer.event.timeupdate,(e)=>{
-    //   this.setState({
-    //     progress: 'Math.round(e.jPlayer.status.currentTime)'
-    //   });
-    // })
-    this.setState({
-      progress: 'Math.round(e.jPlayer.status.currentTime)'
+    $('#player').jPlayer({
+      ready:function(){
+        $(this).jPlayer('setMedia',{
+          mp3:'http://oj4t8z2d5.bkt.clouddn.com/%E9%AD%94%E9%AC%BC%E4%B8%AD%E7%9A%84%E5%A4%A9%E4%BD%BF.mp3'
+        }).jPlayer('play');
+      },
+      supplied:'mp3',
+      wmode:'window'
+    }
+    );
+    $('.player').bind($.jPlayer.event.timeupdate,(e) => {
+      duration = e.jPlayer.status.duration;
+      this.setState({
+        progress: Math.round(e.jPlayer.status.currentPercentAbsolute)
+      });
     });
-    console.log(this.state.progress);
+    // this.setState({
+    //   progress: 'Math.round(e.jPlayer.status.currentTime)'
+    // });
   }
+componentWillUnmount(){
+  $('.player').unbind($.jPlayer.event.timeupdate);
+}
+progressHandleChange(progress){
+  $('#player').jPlayer('play',duration*progress);
+  console.log('progress='+progress);
+  
+}
+
   render() {
     return (
       <div className="index">
       <HeaderComponents/>
-      <ProgressComponents />
+      <ProgressComponents componentChange={this.progressHandleChange} progress={this.state.progress}/>
       </div>
     );
   }
